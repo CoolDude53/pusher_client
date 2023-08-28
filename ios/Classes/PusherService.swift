@@ -156,7 +156,11 @@ class PusherService: MChannel {
         var channel: PusherChannel
         
         if(!channelName.starts(with: PusherService.PRESENCE_PREFIX)) {
-            channel = _pusherInstance.connection.channels.find(name: channelName)!
+            guard let channel = _pusherInstance.connection.channels.find(name: channelName) else { 
+                Utils.debugLog(msg: "[BIND] failed to find channel \(eventName)")
+                result(nil)
+                return 
+            }
             bindedEvents[channelName + eventName] = channel.bind(eventName: eventName, eventCallback: ChannelEventListener.default.onEvent)
         } else {
             channel = _pusherInstance.connection.channels.findPresence(name: channelName)!
@@ -176,7 +180,11 @@ class PusherService: MChannel {
         
         if(callBackId != nil) {
             if(!channelName.starts(with: PusherService.PRESENCE_PREFIX)) {
-                channel = _pusherInstance.connection.channels.find(name: channelName)!
+                guard let channel = _pusherInstance.connection.channels.find(name: channelName) else { 
+                    Utils.debugLog(msg: "[UNBIND] failed to find channel \(eventName)")
+                    result(nil)
+                    return 
+                }
                 channel.unbind(eventName: eventName, callbackId: callBackId!)
             } else {
                 channel = _pusherInstance.connection.channels.findPresence(name: channelName)!
